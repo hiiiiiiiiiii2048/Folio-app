@@ -116,7 +116,21 @@ function DashboardContent() {
                     }
 
                     try {
-                        const data = await supabaseService.getProperties(effectiveUserId);
+                        let data: Property[] | null = null;
+                        try {
+                            data = await supabaseService.getProperties(effectiveUserId);
+                        } catch (supaErr: any) {
+                            if (supaErr?.code === 'PGRST205' || supaErr?.message?.includes('schema')) {
+                                console.log(`[Persistence] Supabase schema error, trying /api/user/properties...`);
+                                const res = await fetch('/api/user/properties');
+                                if (res.ok) {
+                                    const json = await res.json();
+                                    data = json.properties || [];
+                                    console.log(`[Persistence] API fallback returned ${data.length} assets`);
+                                }
+                                if (!data) throw supaErr;
+                            } else throw supaErr;
+                        }
                         console.log(`[Persistence] Cloud returned ${data?.length || 0} assets`);
 
                         // PRIORITY MERGE: Cloud Data + Local Pending Sync Data
@@ -132,8 +146,35 @@ function DashboardContent() {
                             setProperties(final);
                             localStorage.setItem(`folio_props_v2_${effectiveUserId}`, JSON.stringify(final));
                         } else if (localData.length > 0 && localData.some(p => !p.isDemo && !p.id.startsWith('prop-'))) {
-                            console.log(`[Persistence] Cloud empty but LocalStorage has real assets. Keeping local.`);
+                            console.log(`[Persistence] Cloud empty but LocalStorage has real assets. Syncing local to cloud in background...`);
                             setProperties(localData);
+                            const toSync = localData.filter(x => !x.isDemo && !x.id.startsWith('prop-'));
+                            (async () => {
+                                for (const p of toSync) {
+                                    try {
+                                        const res = await fetch('/api/user/properties', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(p),
+                                        });
+                                        if (res.ok) {
+                                            const json = await res.json();
+                                            const saved = json.property;
+                                            setProperties(prev => prev.map(x => x.id === p.id ? saved : x));
+                                            console.log(`[Persistence] Synced ${p.name} to cloud`);
+                                        } else {
+                                            const err = await res.json().catch(() => ({}));
+                                            console.error(`[Persistence] Sync failed for ${p.name}:`, res.status, err);
+                                            setSyncStatus('error');
+                                            setDbError(err?.error || `Sync failed: ${res.status}`);
+                                        }
+                                    } catch (e: any) {
+                                        console.error(`[Persistence] Sync error for ${p.name}:`, e);
+                                        setSyncStatus('error');
+                                        setDbError(e?.message || 'Sync failed');
+                                    }
+                                }
+                            })();
                         } else {
                             console.log(`[Persistence] No cloud or local assets found. Showing mock data.`);
                             setProperties(MOCK_PROPERTIES.map(p => ({ ...p, isDemo: true })));
@@ -291,11 +332,28 @@ function DashboardContent() {
         for (const asset of localAssets) {
             console.log(`[Persistence] Background syncing asset: ${asset.name}`);
             try {
-                const saved = await supabaseService.addProperty(asset, effectiveUserId);
+                let saved: Property | null = null;
+                try {
+                    saved = await supabaseService.addProperty(asset, effectiveUserId);
+                } catch (supaErr: any) {
+                    if (supaErr?.code === 'PGRST205' || supaErr?.message?.includes('schema')) {
+                        const res = await fetch('/api/user/properties', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(asset),
+                        });
+                        if (res.ok) {
+                            const json = await res.json();
+                            saved = json.property;
+                            console.log(`[Persistence] API insert confirmed for: ${asset.name}`);
+                        }
+                    }
+                    if (!saved) throw supaErr;
+                }
                 if (saved) {
                     console.log(`[Persistence] Sync confirmed for: ${asset.name}`);
                     setProperties(prev => {
-                        const updated = prev.map(p => p.id === asset.id ? saved : p);
+                        const updated = prev.map(p => p.id === asset.id ? saved! : p);
                         localStorage.setItem(`folio_props_v2_${effectiveUserId}`, JSON.stringify(updated));
                         return updated;
                     });

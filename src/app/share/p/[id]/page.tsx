@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import { RealEstateDashboard } from "@/components/dashboards/RealEstateDashboard";
 import { getPortfolioStats, Property } from "@/lib/data";
 import { useSettings } from "@/components/ui/settings-provider";
+import { mapDbToProperty } from "@/lib/supabase-service";
 import { LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
 import { PortfolioMapDashboard } from "@/components/dashboards/PortfolioMapDashboard";
@@ -37,24 +38,23 @@ export default function SharedPortfolioPage({ params }: { params: Promise<{ id: 
                 const result = await response.json();
 
                 if (response.ok && result.properties) {
-                    // Map database fields to frontend fields
+                    const rawCount = result.properties.length;
+                    // Map database snake_case columns to frontend Property shape (including financials)
                     const mapped = result.properties.map((dbProp: any) => ({
-                        id: dbProp.id,
-                        name: dbProp.name,
-                        address: dbProp.address,
-                        status: dbProp.status,
-                        type: dbProp.type,
-                        image: dbProp.image,
-                        lat: dbProp.lat,
-                        lng: dbProp.lng,
-                        financials: dbProp.financials || {},
-                        acquisitionDate: dbProp.acquisition_date,
-                        events: dbProp.events || [],
+                        ...mapDbToProperty(dbProp),
                         isDemo: false
                     }));
+                    const totalVal = mapped.reduce((s: number, p: Property) => s + (p.financials?.currentValue || p.financials?.purchasePrice || 0), 0);
+                    if (rawCount > 0 && totalVal === 0) {
+                        console.warn("[Share] Got", rawCount, "properties but total value is $0. Sample row keys:", result.properties[0] ? Object.keys(result.properties[0]) : []);
+                    }
                     setProperties(mapped);
                 } else {
-                    console.error("Shared Fetch Error Response:", result);
+                    if (response.ok && Array.isArray(result.properties) && result.properties.length === 0) {
+                        console.warn("[Share] API returned 0 properties for user. Data may exist only in your browser (localStorage) and not in the cloud. Ensure assets are synced before sharing.");
+                    } else {
+                        console.error("Shared Fetch Error Response:", result);
+                    }
                     setProperties([]);
                 }
             } catch (error) {
@@ -137,6 +137,16 @@ export default function SharedPortfolioPage({ params }: { params: Promise<{ id: 
                         <div className="h-full flex flex-col items-center justify-center space-y-4">
                             <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
                             <p className="text-slate-400 font-medium animate-pulse">Loading shared portfolio...</p>
+                        </div>
+                    ) : properties.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto">
+                            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-6">
+                                <LayoutDashboard size={32} className="text-slate-500" />
+                            </div>
+                            <h2 className="text-xl font-semibold text-white mb-2">No portfolio data yet</h2>
+                            <p className="text-slate-400 text-sm mb-4">
+                                The portfolio owner&apos;s assets may not be synced to the cloud yet. Ask them to open their dashboard and refresh. If sync fails, check that <code className="text-xs bg-slate-800 px-1 rounded">SUPABASE_DB_URL</code> in .env.local points to the <strong>same project</strong> as <code className="text-xs bg-slate-800 px-1 rounded">NEXT_PUBLIC_SUPABASE_URL</code> (yhfwbukaoevpclgzyvre).
+                            </p>
                         </div>
                     ) : (
                         <>

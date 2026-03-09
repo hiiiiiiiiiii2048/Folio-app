@@ -25,6 +25,7 @@
     "mapbox-gl": "^3.19.1",
     "next": "16.1.6",
     "papaparse": "^5.5.3",
+    "pg": "^8.20.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-email": "^5.2.9",

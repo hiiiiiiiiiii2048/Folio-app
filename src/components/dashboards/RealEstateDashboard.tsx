@@ -29,17 +29,6 @@ const LiveFeedItem = ({ text, time, icon: Icon, color }: any) => (
     </div>
 );
 
-const performanceData = [
-    { month: "Jan", value: 1.2, cashflow: 8500 },
-    { month: "Feb", value: 1.25, cashflow: 8800 },
-    { month: "Mar", value: 1.28, cashflow: 8800 },
-    { month: "Apr", value: 1.35, cashflow: 9200 },
-    { month: "May", value: 1.48, cashflow: 11000 },
-    { month: "Jun", value: 1.55, cashflow: 11500 },
-    { month: "Jul", value: 1.62, cashflow: 12200 },
-    { month: "Aug", value: 1.7, cashflow: 12500 },
-];
-
 interface RealEstateDashboardProps {
     properties: Property[];
     stats: any;
@@ -69,6 +58,16 @@ export function RealEstateDashboard({
         const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })), 60000);
         return () => clearInterval(timer);
     }, []);
+
+    const totalVal = stats?.totalValue ?? stats?.projectedTotalValue ?? 0;
+    const chartData = totalVal > 0
+        ? ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"].map((m, i) => ({
+            month: m,
+            value: (totalVal / 1e6) * (0.7 + 0.3 * (i / 7)),
+            cashflow: stats?.monthlyCashflow ?? 0,
+        }))
+        : [{ month: "Now", value: 0, cashflow: 0 }];
+    const chartMax = totalVal > 0 ? Math.ceil((totalVal * 1.2) / 1e6) : 1;
 
     return (
         <motion.div
@@ -169,9 +168,9 @@ export function RealEstateDashboard({
                             ))}
                         </div>
                     </div>
-                    <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={performanceData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <div className="h-[300px] min-h-[300px] w-full min-w-0">
+                        <ResponsiveContainer width="100%" height="100%" minHeight={200}>
+                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -184,9 +183,10 @@ export function RealEstateDashboard({
                                     fontSize={12}
                                     tickLine={false}
                                     axisLine={false}
+                                    domain={[0, chartMax]}
                                     tickFormatter={(val) => {
                                         const sym = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency === 'JPY' ? '¥' : '$';
-                                        return `${sym}${val}M`;
+                                        return chartMax >= 1 ? `${sym}${val}M` : `${sym}${val}`;
                                     }}
                                 />
                                 <Tooltip

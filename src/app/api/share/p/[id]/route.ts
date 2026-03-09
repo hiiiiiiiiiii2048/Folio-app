@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { fetchPropertiesDirect } from "@/lib/reload-pgrst-schema";
 
 export async function GET(
     req: Request,
@@ -12,22 +13,26 @@ export async function GET(
     }
 
     try {
-        // Use admin client to bypass RLS for shared viewing
         const { data, error } = await supabaseAdmin
             .from('properties')
             .select('*')
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
 
+        if (error?.code === 'PGRST205') {
+            console.warn("Share API: PGRST205 — using direct DB fallback");
+            const direct = await fetchPropertiesDirect(userId);
+            if (direct !== null) {
+                return NextResponse.json({ properties: direct });
+            }
+            return NextResponse.json({
+                error: "Database Schema Out of Sync",
+                hint: "Set SUPABASE_DB_URL (Transaction pooler) in .env.local for direct fallback, or run NOTIFY pgrst, 'reload schema'; in Supabase SQL Editor."
+            }, { status: 503 });
+        }
+
         if (error) {
             console.error("Shared Fetch Error:", error);
-            // If it's the schema cache issue, return a specific hint
-            if (error.code === 'PGRST205') {
-                return NextResponse.json({
-                    error: "Database Schema Out of Sync",
-                    hint: "Please refresh the Supabase schema cache using SQL NOTIFY pgrst, 'reload schema';"
-                }, { status: 503 });
-            }
             throw error;
         }
 

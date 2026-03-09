@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
+import { fetchSubscriptionDirect } from "@/lib/reload-pgrst-schema";
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,14 +16,19 @@ export async function GET() {
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        const { data: subscription, error } = await supabase
+        let subscription: Record<string, unknown> | null = null;
+        const { data, error } = await supabase
             .from("subscriptions")
             .select("*")
             .eq("user_id", userId)
             .single();
 
-        if (error && error.code !== "PGRST116") { // PGRST116 is code for 'no rows returned'
+        if (error?.code === "PGRST205") {
+            subscription = await fetchSubscriptionDirect(userId);
+        } else if (error && error.code !== "PGRST116") {
             throw error;
+        } else if (data) {
+            subscription = data as Record<string, unknown>;
         }
 
         return NextResponse.json(subscription || { plan: "Free", status: "inactive" });

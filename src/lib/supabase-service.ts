@@ -66,21 +66,63 @@ export const mapDbToProperty = (db: any): Property => {
         units: db.units ? Number(db.units) : 1,
         lat: db.lat !== null && db.lat !== undefined ? Number(db.lat) : undefined,
         lng: db.lng !== null && db.lng !== undefined ? Number(db.lng) : undefined,
-        financials: {
-            purchasePrice: Number(db.purchase_price || 0),
-            currentValue: Number(db.current_value || 0),
-            renovationCost: Number(db.renovation_cost || 0),
-            debt: Number(db.debt || 0),
-            monthlyRent: Number(db.monthly_rent || 0),
-            monthlyExpenses: Number(db.monthly_expenses || 0),
-            monthlyDebtService: Number(db.monthly_debt_service || 0),
-            principalPayment: Number(db.principle_payment || 0),
-            debtType: db.debt_type || "Fixed",
-            interestRate: db.interest_rate !== null ? Number(db.interest_rate) : undefined,
-            loanDurationMonths: db.loan_duration_months !== null ? Number(db.loan_duration_months) : undefined,
-            fixedTermRemainingMonths: db.fixed_term_remaining_months !== null ? Number(db.fixed_term_remaining_months) : undefined,
-            reserviceDate: db.reservice_date,
-        },
+        financials: (() => {
+            const n = (v: any) => (v != null && v !== '' ? Number(v) : 0);
+            const val = (row: any, ...keys: string[]) => {
+                for (const k of keys) {
+                    const v = row?.[k];
+                    if (v != null && v !== '') return Number(v);
+                }
+                return 0;
+            };
+            const flat = {
+                purchasePrice: val(db, 'purchase_price', 'purchasePrice'),
+                currentValue: val(db, 'current_value', 'currentValue'),
+                renovationCost: val(db, 'renovation_cost', 'renovationCost'),
+                debt: n(db?.debt),
+                monthlyRent: val(db, 'monthly_rent', 'monthlyRent'),
+                monthlyExpenses: val(db, 'monthly_expenses', 'monthlyExpenses'),
+                monthlyDebtService: val(db, 'monthly_debt_service', 'monthlyDebtService'),
+                principalPayment: val(db, 'principle_payment', 'principalPayment', 'principal_payment'),
+            };
+            if (flat.currentValue === 0 && flat.purchasePrice === 0 && db && typeof db === 'object') {
+                for (const k of Object.keys(db)) {
+                    if (/value|price/i.test(k)) {
+                        const v = n((db as any)[k]);
+                        if (v > 0) {
+                            flat.currentValue = flat.purchasePrice = v;
+                            break;
+                        }
+                    }
+                }
+            }
+            const f = db.financials;
+            if (f && typeof f === 'object' && flat.currentValue === 0 && flat.purchasePrice === 0) {
+                return {
+                    purchasePrice: n(f.purchasePrice ?? f.purchase_price),
+                    currentValue: n(f.currentValue ?? f.current_value),
+                    renovationCost: n(f.renovationCost ?? f.renovation_cost),
+                    debt: n(f.debt),
+                    monthlyRent: n(f.monthlyRent ?? f.monthly_rent),
+                    monthlyExpenses: n(f.monthlyExpenses ?? f.monthly_expenses),
+                    monthlyDebtService: n(f.monthlyDebtService ?? f.monthly_debt_service),
+                    principalPayment: n(f.principalPayment ?? f.principal_payment ?? f.principle_payment),
+                    debtType: f.debtType ?? f.debt_type ?? "Fixed",
+                    interestRate: f.interestRate ?? (f.interest_rate != null ? Number(f.interest_rate) : undefined),
+                    loanDurationMonths: f.loanDurationMonths ?? f.loan_duration_months ?? undefined,
+                    fixedTermRemainingMonths: f.fixedTermRemainingMonths ?? f.fixed_term_remaining_months ?? undefined,
+                    reserviceDate: f.reserviceDate ?? f.reservice_date ?? db.reservice_date,
+                };
+            }
+            return {
+                ...flat,
+                debtType: db.debt_type ?? db.debtType ?? "Fixed",
+                interestRate: db.interest_rate != null ? Number(db.interest_rate) : undefined,
+                loanDurationMonths: db.loan_duration_months != null ? Number(db.loan_duration_months) : undefined,
+                fixedTermRemainingMonths: db.fixed_term_remaining_months != null ? Number(db.fixed_term_remaining_months) : undefined,
+                reserviceDate: db.reservice_date,
+            };
+        })(),
         acquisitionDate: db.acquisition_date,
         events: Array.isArray(db.events) ? db.events : [],
         bedrooms: db.bedrooms !== null ? Number(db.bedrooms) : undefined,
