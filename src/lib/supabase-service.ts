@@ -227,6 +227,8 @@ export const supabaseService = {
             if (f.renovationCost !== undefined) dbUpdates.renovation_cost = f.renovationCost;
             if (f.monthlyRent !== undefined) dbUpdates.monthly_rent = f.monthlyRent;
             if (f.monthlyExpenses !== undefined) dbUpdates.monthly_expenses = f.monthlyExpenses;
+            if (f.monthlyDebtService !== undefined) dbUpdates.monthly_debt_service = f.monthlyDebtService;
+            if (f.principalPayment !== undefined) dbUpdates.principle_payment = f.principalPayment;
             if (f.debtType !== undefined) dbUpdates.debt_type = f.debtType;
             if (f.interestRate !== undefined) dbUpdates.interest_rate = f.interestRate;
             if (f.loanDurationMonths !== undefined) dbUpdates.loan_duration_months = f.loanDurationMonths;

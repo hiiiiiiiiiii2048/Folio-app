@@ -757,7 +757,7 @@ export function AddAssetModal({ isOpen, onClose, onAddAssets, initialStatus }: A
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("monthlyDebtService")}</label>
+                                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{t("monthlyMortgage") || "Monthly Mortgage / Debt"}</label>
                                                             <div className="relative">
                                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">$</span>
                                                                 <input

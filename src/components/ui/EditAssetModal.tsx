@@ -346,7 +346,7 @@ export function EditAssetModal({ isOpen, onClose, property, onUpdate, onRemove }
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t("monthlyDebtService")}</label>
+                                            <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t("monthlyMortgage") || "Monthly Mortgage / Debt"}</label>
                                             <div className="relative">
                                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600">$</span>
                                                 <input

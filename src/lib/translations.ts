@@ -266,6 +266,11 @@ export const translations = {
         healthExcellent: "Excellent",
         healthFair: "Fair",
         healthAtRisk: "At Risk",
+        monthlyMortgage: "Monthly Mortgage (P+I)",
+        debtPayment: "Debt Payment",
+        hemorrhaging: "Hemorrhaging",
+        noRentalIncomeWarning: "No Rental Income Detected",
+        monthlyLoss: "Monthly Loss",
     },
     es: {
         editAsset: "Editar Activo",
@@ -531,6 +536,11 @@ export const translations = {
         healthExcellent: "Excelente",
         healthFair: "Regular",
         healthAtRisk: "En Riesgo",
+        monthlyMortgage: "Hipoteca Mensual (P+I)",
+        debtPayment: "Pago de Deuda",
+        hemorrhaging: "Hemorragia",
+        noRentalIncomeWarning: "No se Detectaron Ingresos por Alquiler",
+        monthlyLoss: "Pérdida Mensual",
     },
     fr: {
         editAsset: "Modifier l'Actif",

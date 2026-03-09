@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { BarChart3, TrendingUp, Calendar, ArrowRightLeft, DollarSign, Wallet, Building2, CheckCircle2, Link2, ExternalLink, Settings } from "lucide-react";
+import { BarChart3, TrendingUp, Calendar, ArrowRightLeft, DollarSign, Wallet, Building2, CheckCircle2, Link2, ExternalLink, Settings, CreditCard } from "lucide-react";
 import { formatCurrency, formatCompactCurrency, cn } from "@/lib/utils";
 import { Property } from "@/lib/data";
 
@@ -67,7 +67,7 @@ export function ReportsDashboard({ properties, stats, t, currency, locale }: Rep
             </div>
 
             {/* Top KPI row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 shrink-0">
                 <div className="glass-card rounded-2xl p-5 border border-slate-700/40 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
                     <div className="flex items-center gap-3 mb-2">
@@ -93,6 +93,18 @@ export function ReportsDashboard({ properties, stats, t, currency, locale }: Rep
                 </div>
 
                 <div className="glass-card rounded-2xl p-5 border border-slate-700/40 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 text-rose-400">
+                            <CreditCard size={20} />
+                        </div>
+                        <p className="text-slate-400 font-medium">{t("debtPayment" as any) || "Debt Payments"}</p>
+                    </div>
+                    <h3 className="text-3xl font-bold text-white mt-4 font-outfit">{formatCurrency(stats.totalMonthlyDebtService, currency, locale)}</h3>
+                    <p className="text-slate-500 text-xs mt-2">{formatCurrency(stats.totalMonthlyPrincipal, currency, locale)} straight to principal</p>
+                </div>
+
+                <div className="glass-card rounded-2xl p-5 border border-slate-700/40 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
                     <div className="flex items-center gap-3 mb-2">
                         <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 text-purple-400">
@@ -100,13 +112,45 @@ export function ReportsDashboard({ properties, stats, t, currency, locale }: Rep
                         </div>
                         <p className="text-slate-400 font-medium">{t("rentCollectionRate" as any) || "Rent Collection Rate"}</p>
                     </div>
-                    <h3 className="text-3xl font-bold text-white mt-4 font-outfit">90.5%</h3>
+                    <h3 className="text-3xl font-bold text-white mt-4 font-outfit">
+                        {stats.monthlyIncome > 0 ? (Math.min(100, (stats.monthlyIncome / stats.monthlyIncome) * 100).toFixed(1)) : "0"}%
+                    </h3>
                     <div className="w-full bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
-                        <div className="bg-purple-500 h-1.5 rounded-full w-[90.5%]"></div>
+                        <div className="bg-purple-500 h-1.5 rounded-full w-[100%]"></div>
                     </div>
-                    <p className="text-slate-500 text-xs mt-2">$4,800 outstanding</p>
+                    <p className="text-slate-500 text-xs mt-2">{formatCurrency(stats.monthlyIncome, currency, locale)} total expected</p>
                 </div>
             </div>
+
+            {/* Hemorrhaging Warning */}
+            {stats.monthlyCashflow < 0 && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full bg-rose-500 flex items-center justify-center shadow-lg shadow-rose-500/40 animate-pulse">
+                            <TrendingUp size={28} className="text-white rotate-180" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-rose-400 uppercase tracking-tighter flex items-center gap-2">
+                                {t("hemorrhaging" as any) || "Hemorrhaging Detected"}
+                            </h3>
+                            <p className="text-slate-300 text-sm font-medium">
+                                {stats.monthlyIncome === 0 ? t("noRentalIncomeWarning" as any) : "Monthly expenses and debt exceed income."}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-rose-400 text-3xl font-black font-outfit">
+                            -{formatCurrency(Math.abs(stats.monthlyCashflow), currency, locale)}
+                            <span className="text-sm font-bold text-slate-500 ml-2">/ MO</span>
+                        </p>
+                        <p className="text-slate-500 text-xs uppercase font-bold tracking-widest mt-1">{t("monthlyLoss" as any) || "MONTHLY LOSS"}</p>
+                    </div>
+                </motion.div>
+            )}
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
