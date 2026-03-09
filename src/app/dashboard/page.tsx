@@ -281,7 +281,7 @@ function DashboardContent() {
         setProperties(prev => {
             const filteredPrev = prev.filter(p => !p.isDemo);
             const updated = [...localAssets, ...filteredPrev];
-            localStorage.setItem(`folio_props_${effectiveUserId}`, JSON.stringify(updated));
+            localStorage.setItem(`folio_props_v2_${effectiveUserId}`, JSON.stringify(updated));
             return updated;
         });
 
