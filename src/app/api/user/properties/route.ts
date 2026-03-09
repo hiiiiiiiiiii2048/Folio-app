@@ -34,7 +34,7 @@ export async function GET() {
         return NextResponse.json({ properties });
     } catch (err: any) {
         console.error("[Properties API Error]", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json({ error: "Unable to load properties. Please try again." }, { status: 500 });
     }
 }
 
@@ -64,13 +64,13 @@ export async function POST(req: Request) {
             if (!savedRow) {
                 console.error("[Properties API] insertPropertyDirect returned null - check server logs for Direct property insert error");
                 return NextResponse.json(
-                    { error: "Direct insert failed. Ensure SUPABASE_DB_URL points to the same project as NEXT_PUBLIC_SUPABASE_URL (yhfwbukaoevpclgzyvre)." },
+                    { error: "Unable to sync this asset. Please try again later." },
                     { status: 500 }
                 );
             }
         } else if (error) {
             console.error("[Properties API] Insert error:", error);
-            return NextResponse.json({ error: error.message }, { status: 500 });
+            return NextResponse.json({ error: "Unable to save this asset. Please try again." }, { status: 500 });
         } else {
             savedRow = data?.[0] as Record<string, unknown> ?? null;
         }
@@ -79,6 +79,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ property: saved });
     } catch (err: any) {
         console.error("[Properties API] POST error:", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json({ error: "Unable to save this asset. Please try again." }, { status: 500 });
     }
 }

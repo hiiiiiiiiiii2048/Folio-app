@@ -26,8 +26,7 @@ export async function GET(
                 return NextResponse.json({ properties: direct });
             }
             return NextResponse.json({
-                error: "Database Schema Out of Sync",
-                hint: "Set SUPABASE_DB_URL (Transaction pooler) in .env.local for direct fallback, or run NOTIFY pgrst, 'reload schema'; in Supabase SQL Editor."
+                error: "Unable to load shared portfolio. Please try again later."
             }, { status: 503 });
         }
 
@@ -39,6 +38,6 @@ export async function GET(
         return NextResponse.json({ properties: data || [] });
     } catch (error: any) {
         console.error("Internal Shared View Error:", error);
-        return NextResponse.json({ error: "Failed to fetch shared data", details: error.message }, { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch shared data" }, { status: 500 });
     }
 }

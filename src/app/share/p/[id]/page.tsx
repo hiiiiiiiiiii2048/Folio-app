@@ -145,7 +145,7 @@ export default function SharedPortfolioPage({ params }: { params: Promise<{ id: 
                             </div>
                             <h2 className="text-xl font-semibold text-white mb-2">No portfolio data yet</h2>
                             <p className="text-slate-400 text-sm mb-4">
-                                The portfolio owner&apos;s assets may not be synced to the cloud yet. Ask them to open their dashboard and refresh. If sync fails, check that <code className="text-xs bg-slate-800 px-1 rounded">SUPABASE_DB_URL</code> in .env.local points to the <strong>same project</strong> as <code className="text-xs bg-slate-800 px-1 rounded">NEXT_PUBLIC_SUPABASE_URL</code> (yhfwbukaoevpclgzyvre).
+                                The portfolio owner&apos;s assets may not be synced yet. Ask them to open their dashboard to sync their data.
                             </p>
                         </div>
                     ) : (
