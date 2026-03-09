@@ -281,10 +281,10 @@ export function StatCard({ title, value, trend, icon: Icon, color, bg, trendDown
                     </span>
                 </div>
                 <div>
-                    <p className="text-slate-400 text-sm font-medium mb-1">{title}</p>
-                    {supertext && <p className="text-[10px] text-emerald-400/80 font-medium mb-0.5">{supertext}</p>}
-                    <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{value}</h3>
-                    {subtext && <p className="text-xs text-rose-400/80 font-medium mt-1.5 leading-snug">{subtext}</p>}
+                    <p className="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-tight mb-1">{title}</p>
+                    {supertext && <p className="text-[9px] text-emerald-400/80 font-medium mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{supertext}</p>}
+                    <h3 className="text-xl sm:text-3xl font-bold text-white tracking-tight break-all">{value}</h3>
+                    {subtext && <p className="text-[10px] text-rose-400/80 font-medium mt-1.5 leading-snug">{subtext}</p>}
                 </div>
             </div>
         </div>

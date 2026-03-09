@@ -82,7 +82,7 @@ export default function SharedPortfolioPage({ params }: { params: Promise<{ id: 
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setIsSidebarOpen(false)}
-                        className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 lg:hidden"
+                        className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-40 lg:hidden"
                     />
                 )}
             </AnimatePresence>
@@ -91,11 +91,11 @@ export default function SharedPortfolioPage({ params }: { params: Promise<{ id: 
             <motion.aside
                 initial={false}
                 animate={{
-                    x: isSidebarOpen ? 0 : -280,
-                    transition: { type: 'spring', damping: 25, stiffness: 200 }
+                    x: (isSidebarOpen || typeof window !== 'undefined' && window.innerWidth >= 1024) ? 0 : -280,
                 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                 className={cn(
-                    "fixed lg:relative lg:translate-x-0 w-[280px] h-full flex flex-col border-r border-slate-800/60 glass-panel bg-slate-950/90 backdrop-blur-2xl p-4 shrink-0 z-50 transition-all duration-300",
+                    "fixed inset-y-0 left-0 w-[280px] h-full flex flex-col border-r border-slate-800/60 glass-panel bg-slate-950/95 backdrop-blur-2xl p-4 shrink-0 z-50 lg:relative lg:translate-x-0 transition-transform duration-300",
                     !isSidebarOpen && "hidden lg:flex"
                 )}
             >
@@ -156,9 +156,9 @@ export default function SharedPortfolioPage({ params }: { params: Promise<{ id: 
                         >
                             <Menu size={20} />
                         </button>
-                        <h1 className="text-sm sm:text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2 truncate">
-                            <span className="truncate">{sharedName}</span>
-                            <span className="px-2 py-0.5 rounded text-[8px] sm:text-[10px] font-bold bg-blue-500/20 text-blue-400 shrink-0 border border-blue-500/20">READ-ONLY</span>
+                        <h1 className="text-sm sm:text-lg font-bold text-white uppercase tracking-wider flex items-center gap-2 min-w-0">
+                            <span className="truncate max-w-[120px] xs:max-w-none">{sharedName}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[7px] sm:text-[10px] font-black bg-blue-500/20 text-blue-400 shrink-0 border border-blue-500/20">READ-ONLY</span>
                         </h1>
                     </div>
                     <a href="/signup" target="_blank" rel="noopener noreferrer" className="hidden xs:flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full transition-all text-[10px] sm:text-xs font-medium text-slate-200 group">

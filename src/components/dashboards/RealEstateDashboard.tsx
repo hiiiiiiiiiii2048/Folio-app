@@ -76,7 +76,7 @@ export function RealEstateDashboard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.3 }}
-            className="max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-10"
+            className="max-w-7xl mx-auto space-y-4 sm:space-y-8 pb-10"
         >
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
@@ -115,7 +115,7 @@ export function RealEstateDashboard({
                 </motion.div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 <StatCard
                     title={t("totalPropertyValue")}
                     supertext={`${t("projectedWithPipeline")}: ${formatCurrency(stats.projectedTotalValue, currency, locale)}`}
