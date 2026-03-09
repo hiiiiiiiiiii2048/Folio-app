@@ -89,49 +89,65 @@ function DashboardContent() {
         if (isLoaded) {
             if (effectiveUserId) {
                 const fetchFromSupabase = async () => {
+                    console.log(`[Persistence] Fetching for user: ${effectiveUserId}`);
                     setSyncStatus('loading');
                     setDbError(null);
+
+                    // 1. Pre-load from LocalStorage for instant UI
+                    const CACHE_KEY = `folio_props_v2_${effectiveUserId}`; // Versioned key to force purge old data
+                    const stored = localStorage.getItem(CACHE_KEY);
+                    let localData: Property[] = [];
+                    if (stored) {
+                        try {
+                            const parsed = JSON.parse(stored);
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                // STRICT FILTER: Never load demo data from cache
+                                localData = parsed.filter(p => !p.isDemo && !p.id.startsWith('prop-'));
+
+                                if (localData.length > 0) {
+                                    console.log(`[Persistence] Initializing with ${localData.length} ACTUAL assets from LocalStorage`);
+                                    setProperties(localData);
+                                    setIsLoading(false);
+                                }
+                            }
+                        } catch (e) {
+                            console.error("[Persistence] LocalStorage Parse Error:", e);
+                        }
+                    }
+
                     try {
                         const data = await supabaseService.getProperties(effectiveUserId);
-
-                        // Check local storage for any pending or cached data
-                        const stored = localStorage.getItem(`folio_props_${effectiveUserId}`);
-                        let localData: Property[] = [];
-                        if (stored) {
-                            try {
-                                const parsed = JSON.parse(stored);
-                                if (Array.isArray(parsed)) localData = parsed;
-                            } catch (e) {
-                                console.error("Persistence Restore Error:", e);
-                            }
-                        }
+                        console.log(`[Persistence] Cloud returned ${data?.length || 0} assets`);
 
                         // PRIORITY MERGE: Cloud Data + Local Pending Sync Data
                         if (data && data.length > 0) {
-                            // Merge strategy: Database is source of truth, but keep local assets that haven't synced yet
                             const dbIds = new Set(data.map(p => p.id));
                             const pendingSync = localData.filter(p => !dbIds.has(p.id) && !p.isDemo && !p.id.startsWith('prop-'));
-                            setProperties([...data, ...pendingSync]);
+
+                            if (pendingSync.length > 0) {
+                                console.log(`[Persistence] Merging ${pendingSync.length} unsynced local assets with cloud data`);
+                            }
+
+                            const final = [...data, ...pendingSync];
+                            setProperties(final);
+                            localStorage.setItem(`folio_props_v2_${effectiveUserId}`, JSON.stringify(final));
                         } else if (localData.length > 0 && localData.some(p => !p.isDemo && !p.id.startsWith('prop-'))) {
-                            // No data in cloud yet, but we have real data in local cache
+                            console.log(`[Persistence] Cloud empty but LocalStorage has real assets. Keeping local.`);
                             setProperties(localData);
                         } else {
-                            // Totally empty state for a real user - show mocks as template
+                            console.log(`[Persistence] No cloud or local assets found. Showing mock data.`);
                             setProperties(MOCK_PROPERTIES.map(p => ({ ...p, isDemo: true })));
                         }
                         setSyncStatus('synced');
                     } catch (e: any) {
-                        console.error("Cloud Retrieval Failed:", e);
+                        console.error("[Persistence] Cloud Fetch Error:", e);
                         setSyncStatus('error');
                         setDbError(e.message || "Failed to reach cloud database");
-                        const stored = localStorage.getItem(`folio_props_${effectiveUserId}`);
-                        if (stored) {
-                            try {
-                                const parsed = JSON.parse(stored);
-                                if (Array.isArray(parsed)) setProperties(parsed);
-                            } catch (err) {
-                                setProperties(MOCK_PROPERTIES.map(p => ({ ...p, isDemo: true })));
-                            }
+
+                        // Fallback to local if fetch fails
+                        if (localData.length > 0) {
+                            console.log(`[Persistence] Fallback to LocalStorage due to fetch error`);
+                            setProperties(localData);
                         } else {
                             setProperties(MOCK_PROPERTIES.map(p => ({ ...p, isDemo: true })));
                         }
@@ -141,7 +157,7 @@ function DashboardContent() {
                 };
                 fetchFromSupabase();
             } else {
-                // Anonymous Guest session
+                console.log("[Persistence] Guest session detected. Showing mock data.");
                 setProperties(MOCK_PROPERTIES.map(p => ({ ...p, isDemo: true })));
                 setIsLoading(false);
                 setSyncStatus('synced');
@@ -156,7 +172,7 @@ function DashboardContent() {
 
         if (isLoaded && effectiveUserId && hasRealData) {
             console.log("Persistence Sync: Saving actual user assets to local storage");
-            localStorage.setItem(`folio_props_${effectiveUserId}`, JSON.stringify(properties));
+            localStorage.setItem(`folio_props_v2_${effectiveUserId}`, JSON.stringify(properties));
         }
     }, [properties, effectiveUserId, isLoaded]);
 
@@ -273,17 +289,19 @@ function DashboardContent() {
 
         // 2. BACKGROUND CLOUD SYNC
         for (const asset of localAssets) {
+            console.log(`[Persistence] Background syncing asset: ${asset.name}`);
             try {
                 const saved = await supabaseService.addProperty(asset, effectiveUserId);
                 if (saved) {
+                    console.log(`[Persistence] Sync confirmed for: ${asset.name}`);
                     setProperties(prev => {
                         const updated = prev.map(p => p.id === asset.id ? saved : p);
-                        localStorage.setItem(`folio_props_${effectiveUserId}`, JSON.stringify(updated));
+                        localStorage.setItem(`folio_props_v2_${effectiveUserId}`, JSON.stringify(updated));
                         return updated;
                     });
                 }
             } catch (e) {
-                console.error("Cloud sync failed, asset preserved locally:", e);
+                console.error(`[Persistence] Cloud sync failed for ${asset.name}:`, e);
                 setSyncStatus('error');
             }
         }
