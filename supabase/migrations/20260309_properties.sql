@@ -40,3 +40,6 @@ ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "properties_allow_all" ON public.properties;
 CREATE POLICY "properties_allow_all" ON public.properties FOR ALL USING (true) WITH CHECK (true);
+
+-- Tell PostgREST to reload schema so the new table appears in the REST API
+NOTIFY pgrst, 'reload schema';
