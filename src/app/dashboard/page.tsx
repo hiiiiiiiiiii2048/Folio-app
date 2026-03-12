@@ -23,7 +23,9 @@ import {
     X,
     Shield,
     StickyNote,
-    CreditCard
+    CreditCard,
+    Server,
+    Terminal
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -45,6 +47,8 @@ import { ReportsDashboard } from "@/components/dashboards/ReportsDashboard";
 import { CollaboratorsDashboard } from "@/components/dashboards/CollaboratorsDashboard";
 import { AgentsDashboard } from "@/components/dashboards/AgentsDashboard";
 import { BillingDashboard } from "@/components/dashboards/BillingDashboard";
+import { SystemInfrastructureDashboard } from "@/components/dashboards/SystemInfrastructureDashboard";
+import { ApiLogsDashboard } from "@/components/dashboards/ApiLogsDashboard";
 import { FeatureRequestPopup } from "@/components/ui/FeatureRequestPopup";
 import { SharePortfolioModal } from "@/components/ui/SharePortfolioModal";
 import { PortfolioHealthModal } from "@/components/ui/PortfolioHealthModal";

@@ -271,6 +271,8 @@ export const translations = {
         hemorrhaging: "Hemorrhaging",
         noRentalIncomeWarning: "No Rental Income Detected",
         monthlyLoss: "Monthly Loss",
+        systemInfrastructureNav: "System Infrastructure",
+        apiLogsNav: "API Logs",
     },
     es: {
         editAsset: "Editar Activo",
@@ -541,6 +543,8 @@ export const translations = {
         hemorrhaging: "Hemorragia",
         noRentalIncomeWarning: "No se Detectaron Ingresos por Alquiler",
         monthlyLoss: "Pérdida Mensual",
+        systemInfrastructureNav: "Infraestructura del Sistema",
+        apiLogsNav: "Logs de API",
     },
     fr: {
         editAsset: "Modifier l'Actif",
