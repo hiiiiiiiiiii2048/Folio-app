@@ -32,7 +32,9 @@ import {
     Bell,
     Check,
     Settings,
-    HelpCircle
+    HelpCircle,
+    Home,
+    LayoutDashboard
 } from "lucide-react";
 import {
     Area,
@@ -59,13 +61,12 @@ const engagementData = [
 ];
 
 const mockUsers = [
-    { id: "1", name: "David Sterling", email: "david@sterling-res.com", plan: "Pro", visits: 42, properties: 12, health: 94, lastSeen: "2 mins ago", status: "active" },
-    { id: "2", name: "Sarah Jenkins", email: "sjenkins@gmail.com", plan: "Free", visits: 8, properties: 2, health: 68, lastSeen: "5 hours ago", status: "idle" },
-    { id: "3", name: "Michael Chen", email: "m.chen@venture-capital.io", plan: "Enterprise", visits: 156, properties: 48, health: 88, lastSeen: "Just now", status: "active" },
-    { id: "4", name: "Emma Rodriguez", email: "emma.rod@outlook.com", plan: "Pro", visits: 24, properties: 5, health: 72, lastSeen: "1 day ago", status: "active" },
-    { id: "5", name: "Robert Wilson", email: "robert@wilson-partners.com", plan: "Free", visits: 2, properties: 1, health: 45, lastSeen: "3 days ago", status: "at-risk" },
-    { id: "6", name: "Isabella Thorne", email: "isabella@thorne-holdings.com", plan: "Pro", visits: 88, properties: 18, health: 91, lastSeen: "10 mins ago", status: "active" },
-    { id: "7", name: "Alex Kumar", email: "alex.kumar@tech-invest.com", plan: "Enterprise", visits: 210, properties: 64, health: 96, lastSeen: "Just now", status: "active" },
+    { id: "1", name: "Printsly Shop", email: "printslyshop@gmail.com", plan: "Free", visits: 1, properties: 0, health: 85, lastSeen: "3/11/2026, 10:33:21 PM", status: "idle", imageUrl: null },
+    { id: "2", name: "David Sterling", email: "david@sterling-res.com", plan: "Pro", visits: 42, properties: 12, health: 94, lastSeen: "2 mins ago", status: "active", imageUrl: null },
+    { id: "3", name: "Sarah Jenkins", email: "sjenkins@gmail.com", plan: "Free", visits: 8, properties: 2, health: 68, lastSeen: "5 hours ago", status: "idle", imageUrl: null },
+    { id: "4", name: "Michael Chen", email: "m.chen@venture-capital.io", plan: "Enterprise", visits: 156, properties: 48, health: 88, lastSeen: "Just now", status: "active", imageUrl: null },
+    { id: "5", name: "Emma Rodriguez", email: "emma.rod@outlook.com", plan: "Pro", visits: 24, properties: 5, health: 72, lastSeen: "1 day ago", status: "active", imageUrl: null },
+    { id: "6", name: "Robert Wilson", email: "robert@wilson-partners.com", plan: "Free", visits: 2, properties: 1, health: 45, lastSeen: "3 days ago", status: "at-risk", imageUrl: null },
 ];
 
 export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: string }) {
@@ -74,6 +75,7 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
     const [usersData, setUsersData] = useState<any[]>(mockUsers);
     const [isLoading, setIsLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string | null>(null);
+    const [selectedUser, setSelectedUser] = useState<any | null>(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -261,7 +263,7 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                             </div>
                         </div>
 
-                        <div className="glass-card rounded-3xl border border-slate-800 bg-slate-950/20 overflow-hidden shadow-2xl relative">
+                        <div className="glass-card rounded-3xl border border-slate-800/60 bg-[#0A0C14]/80 overflow-hidden shadow-2xl relative">
                             {isLoading && (
                                 <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50">
                                     <div className="flex flex-col items-center gap-3">
@@ -274,18 +276,18 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="border-b border-slate-800/60 bg-slate-950/40">
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">User</th>
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Plan</th>
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Props</th>
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Visits</th>
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Engagement</th>
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Last Activity</th>
-                                            <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Actions</th>
+                                        <tr className="border-b border-white/5 bg-slate-900/30">
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest">User</th>
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan</th>
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Props</th>
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Visits</th>
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Engagement</th>
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Last Activity</th>
+                                            <th className="px-6 py-6 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-800/40">
+                                    <tbody className="divide-y divide-white/5">
                                         {filteredUsers.length === 0 && !isLoading && (
                                             <tr>
                                                 <td colSpan={8} className="px-6 py-20 text-center">
@@ -297,19 +299,27 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                                             </tr>
                                         )}
                                         {filteredUsers.map((user) => (
-                                            <tr key={user.id} className="hover:bg-blue-500/5 transition-colors group">
+                                            <tr
+                                                key={user.id}
+                                                className="hover:bg-blue-500/5 transition-colors group cursor-pointer"
+                                                onClick={() => setSelectedUser(user)}
+                                            >
                                                 <td className="px-6 py-5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-[11px] font-black text-slate-500 group-hover:text-blue-500 group-hover:border-blue-500/30 transition-all shadow-inner overflow-hidden">
+                                                        <div className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center text-sm font-black shadow-lg overflow-hidden shrink-0"
+                                                            style={{ background: user.imageUrl ? 'transparent' : 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+                                                        >
                                                             {user.imageUrl ? (
                                                                 <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
                                                             ) : (
-                                                                user.name ? user.name.split(" ").map((n: string) => n[0]).join("") : "U"
+                                                                <span className="text-slate-900 text-xs font-black">
+                                                                    {(user.name || "U").split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+                                                                </span>
                                                             )}
                                                         </div>
-                                                        <div>
-                                                            <div className="text-sm font-bold text-white leading-tight">{user.name}</div>
-                                                            <div className="text-[10px] text-slate-600 font-medium mt-0.5">{user.email}</div>
+                                                        <div className="min-w-0">
+                                                            <div className="text-sm font-bold text-white leading-tight truncate">{user.name}</div>
+                                                            <div className="text-[11px] text-slate-500 font-medium mt-0.5 truncate">{user.email}</div>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -318,8 +328,7 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                                                         <div className={cn(
                                                             "w-1.5 h-1.5 rounded-full shadow-[0_0_8px]",
                                                             user.status === "active" ? "bg-emerald-500 shadow-emerald-500/50" :
-                                                                user.status === "at-risk" ? "bg-rose-500 shadow-rose-500/50" :
-                                                                    "bg-slate-600 shadow-slate-600/50"
+                                                                "bg-slate-700 shadow-slate-700/20"
                                                         )}></div>
                                                         <span className={cn(
                                                             "text-[10px] font-bold capitalize",
@@ -331,38 +340,38 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                                                 </td>
                                                 <td className="px-6 py-5">
                                                     <span className={cn(
-                                                        "text-[9px] font-black uppercase px-2 py-0.5 rounded border tracking-tighter",
-                                                        user.plan === "Enterprise" ? "bg-purple-500/10 text-purple-400 border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.1)]" :
+                                                        "text-[9px] font-black uppercase px-2 py-0.5 rounded-md border tracking-tighter",
+                                                        user.plan === "Enterprise" ? "bg-purple-500/10 text-purple-400 border-purple-500/20" :
                                                             user.plan === "Pro" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" :
-                                                                "bg-slate-900 text-slate-500 border-slate-800"
+                                                                "bg-slate-800/50 text-slate-500 border-slate-700/50"
                                                     )}>
                                                         {user.plan}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-5 text-center font-mono text-xs text-slate-300 font-bold">
+                                                <td className="px-6 py-5 text-center font-bold text-xs text-slate-300">
                                                     {user.properties}
                                                 </td>
                                                 <td className="px-6 py-5 text-center">
                                                     <div className="flex flex-col items-center">
                                                         <span className="text-xs font-bold text-white">{user.visits}</span>
-                                                        <span className="text-[8px] font-black text-slate-600 uppercase">Total</span>
+                                                        <span className="text-[9px] font-bold text-slate-600 uppercase">Total</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-5">
                                                     <div className="space-y-1.5">
-                                                        <div className="flex justify-between items-center text-[8px] font-black uppercase tracking-widest text-slate-500">
-                                                            <span>Health</span>
+                                                        <div className="flex items-center gap-2 text-[8px] font-black uppercase tracking-widest">
+                                                            <span className="text-slate-500">Health</span>
                                                             <span className={cn(
                                                                 user.health > 80 ? "text-emerald-400" :
                                                                     user.health > 60 ? "text-amber-400" : "text-rose-400"
                                                             )}>{user.health}%</span>
                                                         </div>
-                                                        <div className="w-24 h-1.5 bg-slate-900 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                                                        <div className="w-24 h-1 bg-slate-900 rounded-full overflow-hidden">
                                                             <motion.div
                                                                 initial={{ width: 0 }}
                                                                 animate={{ width: `${user.health}%` }}
                                                                 className={cn(
-                                                                    "h-full rounded-full transition-all duration-1000",
+                                                                    "h-full rounded-full",
                                                                     user.health > 80 ? "bg-emerald-500" :
                                                                         user.health > 60 ? "bg-amber-500" : "bg-rose-500"
                                                                 )}
@@ -370,23 +379,25 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5 text-[10px] text-slate-400 font-bold flex items-center gap-2">
-                                                    <Clock size={12} className="text-slate-600" />
-                                                    {user.lastSeen}
+                                                <td className="px-6 py-5 text-[10px] text-slate-400 font-bold">
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock size={12} className="text-slate-600" />
+                                                        {user.lastSeen}
+                                                    </div>
                                                 </td>
-                                                <td className="px-6 py-5 text-right">
+                                                <td className="px-6 py-5 text-right" onClick={(e) => e.stopPropagation()}>
                                                     <div className="flex items-center justify-end gap-2">
                                                         <Link
                                                             href={`/dashboard?viewUserId=${user.id}`}
-                                                            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white transition-all shadow-lg"
+                                                            className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-white hover:border-slate-700 transition-all shadow-sm"
                                                             title="Inspect Node"
                                                         >
                                                             <ExternalLink size={14} />
                                                         </Link>
-                                                        <button className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white transition-all shadow-lg">
+                                                        <button className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-white hover:border-slate-700 transition-all shadow-sm">
                                                             <Mail size={14} />
                                                         </button>
-                                                        <button className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white transition-all shadow-lg">
+                                                        <button className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-500 hover:text-white hover:border-slate-700 transition-all shadow-sm">
                                                             <MoreVertical size={14} />
                                                         </button>
                                                     </div>
@@ -397,8 +408,16 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                                 </table>
                             </div>
                         </div>
+
+                        <AnimatePresence>
+                            {selectedUser && (
+                                <UserDetailDrawer user={selectedUser} onClose={() => setSelectedUser(null)} />
+                            )}
+                        </AnimatePresence>
                     </motion.div>
                 )}
+
+
 
                 {activeTab === "AI Node Monitoring" && (
                     <motion.div
@@ -517,6 +536,248 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
     );
 }
 
+
+function UserDetailDrawer({ user, onClose }: { user: any; onClose: () => void }) {
+    const healthColor =
+        user.health > 80 ? "text-emerald-400" :
+            user.health > 60 ? "text-amber-400" : "text-rose-400";
+    const healthBg =
+        user.health > 80 ? "bg-emerald-500" :
+            user.health > 60 ? "bg-amber-500" : "bg-rose-500";
+    const healthLabel =
+        user.health > 80 ? "Excellent" :
+            user.health > 60 ? "Fair" : "At Risk";
+
+    const ltv = user.totalValue > 0
+        ? ((user.totalDebt / user.totalValue) * 100).toFixed(1)
+        : "N/A";
+
+    const formatK = (v: number) => {
+        if (!v) return "$0";
+        if (Math.abs(v) >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+        if (Math.abs(v) >= 1_000) return `$${(v / 1_000).toFixed(0)}K`;
+        return `$${v.toFixed(0)}`;
+    };
+
+    const props: any[] = user.propertyDetails || [];
+
+    return (
+        <div className="fixed inset-0 z-[100] flex justify-end">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            />
+            <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 28, stiffness: 220 }}
+                className="relative w-full max-w-lg bg-[#080A12] border-l border-white/5 h-full flex flex-col shadow-2xl overflow-hidden"
+            >
+                {/* Header */}
+                <div className="p-5 border-b border-white/5 flex items-center justify-between bg-slate-900/50 shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div
+                            className="w-11 h-11 rounded-xl border border-white/10 flex items-center justify-center text-sm font-black shadow-lg overflow-hidden shrink-0"
+                            style={{ background: user.imageUrl ? "transparent" : "linear-gradient(135deg, #6366f1, #8b5cf6)" }}
+                        >
+                            {user.imageUrl ? (
+                                <img src={user.imageUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-white text-sm font-black">
+                                    {(user.name || "U").split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+                                </span>
+                            )}
+                        </div>
+                        <div>
+                            <h3 className="text-base font-bold text-white leading-tight">{user.name}</h3>
+                            <p className="text-[11px] text-slate-500 truncate max-w-48">{user.email}</p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-white transition-colors"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Scrollable body */}
+                <div className="flex-1 overflow-y-auto">
+
+                    {/* —— LIVE PORTFOLIO HEALTH BANNER —— */}
+                    <div className="mx-5 mt-5 p-4 rounded-2xl bg-slate-900/50 border border-white/5 relative overflow-hidden">
+                        <div
+                            className={`absolute inset-x-0 top-0 h-0.5 ${healthBg}`}
+                            style={{ width: `${user.health}%` }}
+                        />
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Live Portfolio Health</p>
+                                <div className="flex items-baseline gap-2">
+                                    <span className={`text-3xl font-bold ${healthColor}`}>{user.health}</span>
+                                    <span className="text-slate-500 text-sm font-bold">/ 100</span>
+                                </div>
+                                <p className={`text-[11px] font-bold uppercase tracking-widest mt-1 ${healthColor}`}>{healthLabel}</p>
+                            </div>
+                            <div className="w-20 h-20 relative shrink-0">
+                                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                                    <circle cx="18" cy="18" r="15" fill="none" stroke="#1e293b" strokeWidth="3" />
+                                    <circle
+                                        cx="18" cy="18" r="15" fill="none"
+                                        stroke={user.health > 80 ? '#10b981' : user.health > 60 ? '#f59e0b' : '#ef4444'}
+                                        strokeWidth="3"
+                                        strokeDasharray={`${(user.health / 100) * 94.2} 94.2`}
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className={`text-sm font-bold ${healthColor}`}>{user.health}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* —— FINANCIAL METRICS —— */}
+                    <div className="px-5 mt-4 grid grid-cols-3 gap-3">
+                        {[
+                            { label: "Portfolio Value", value: formatK(user.totalValue), icon: TrendingUp, color: "text-blue-400" },
+                            { label: "Total Debt", value: formatK(user.totalDebt), icon: CreditCard, color: "text-rose-400" },
+                            { label: "Net Cashflow", value: formatK(user.netCashflow), icon: Activity, color: user.netCashflow >= 0 ? "text-emerald-400" : "text-rose-400" },
+                        ].map((m, i) => (
+                            <div key={i} className="bg-slate-900/40 border border-white/5 rounded-xl p-3">
+                                <m.icon size={13} className={`${m.color} mb-1.5`} />
+                                <p className={`text-sm font-bold ${m.color}`}>{m.value}</p>
+                                <p className="text-[9px] text-slate-600 uppercase tracking-widest font-bold leading-tight mt-0.5">{m.label}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* —— KEY RATIOS —— */}
+                    <div className="px-5 mt-4 grid grid-cols-2 gap-3">
+                        <div className="bg-slate-900/30 border border-white/5 rounded-xl p-3 flex justify-between items-center">
+                            <span className="text-[10px] text-slate-500 uppercase font-bold">Portfolio LTV</span>
+                            <span className="text-sm font-bold text-white">{ltv}{ltv !== "N/A" ? "%" : ""}</span>
+                        </div>
+                        <div className="bg-slate-900/30 border border-white/5 rounded-xl p-3 flex justify-between items-center">
+                            <span className="text-[10px] text-slate-500 uppercase font-bold">Properties</span>
+                            <span className="text-sm font-bold text-white">{user.properties}</span>
+                        </div>
+                        <div className="bg-slate-900/30 border border-white/5 rounded-xl p-3 flex justify-between items-center">
+                            <span className="text-[10px] text-slate-500 uppercase font-bold">Monthly Rent</span>
+                            <span className="text-sm font-bold text-emerald-400">{formatK(user.monthlyRent)}</span>
+                        </div>
+                        <div className="bg-slate-900/30 border border-white/5 rounded-xl p-3 flex justify-between items-center">
+                            <span className="text-[10px] text-slate-500 uppercase font-bold">Monthly Exp.</span>
+                            <span className="text-sm font-bold text-rose-400">{formatK(user.monthlyExpenses)}</span>
+                        </div>
+                    </div>
+
+                    {/* —— PROPERTIES BREAKDOWN —— */}
+                    {props.length > 0 && (
+                        <div className="px-5 mt-5">
+                            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <Home size={12} className="text-blue-500" /> Property Registry ({props.length})
+                            </h4>
+                            <div className="space-y-2">
+                                {props.map((p: any, idx: number) => {
+                                    const pLtv = p.current_value > 0 ? Math.round((p.debt / p.current_value) * 100) : 0;
+                                    const pHealth = p.current_value > 0 ? (pLtv < 65 ? 90 : pLtv < 80 ? 70 : 45) : 100;
+                                    const statusColors: Record<string, string> = {
+                                        "Active": "text-emerald-400",
+                                        "Rented": "text-blue-400",
+                                        "Renovation": "text-amber-400",
+                                        "Vacant": "text-rose-400",
+                                    };
+                                    return (
+                                        <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all">
+                                            <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-slate-800">
+                                                {p.image ? (
+                                                    <img src={p.image} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <Home size={14} className="text-slate-600" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-bold text-slate-200 truncate">{p.name}</p>
+                                                <p className={`text-[10px] font-bold ${statusColors[p.status] || 'text-slate-500'}`}>{p.status}</p>
+                                            </div>
+                                            <div className="text-right shrink-0">
+                                                <p className="text-xs font-bold text-white">{pLtv}% LTV</p>
+                                                <p className="text-[9px] text-slate-600">{formatK(p.current_value)}</p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {props.length === 0 && (
+                        <div className="mx-5 mt-5 p-6 rounded-xl bg-slate-900/20 border border-white/5 text-center">
+                            <Home size={28} className="text-slate-700 mx-auto mb-2" />
+                            <p className="text-[11px] text-slate-600 uppercase tracking-widest font-bold">No properties in portfolio</p>
+                        </div>
+                    )}
+
+                    {/* —— ACCOUNT INFO —— */}
+                    <div className="px-5 mt-5 mb-5">
+                        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Account Node</h4>
+                        <div className="bg-slate-900/30 rounded-xl border border-white/5 overflow-hidden divide-y divide-white/5">
+                            <div className="p-3 flex justify-between items-center">
+                                <span className="text-[11px] text-slate-400">Clerk ID</span>
+                                <span className="text-[10px] font-mono text-slate-600 truncate max-w-36">{user.id}</span>
+                            </div>
+                            <div className="p-3 flex justify-between items-center">
+                                <span className="text-[11px] text-slate-400">Plan</span>
+                                <span className={cn("text-[10px] font-black uppercase px-2 py-0.5 rounded border",
+                                    user.plan === "Enterprise" ? "text-purple-400 bg-purple-500/10 border-purple-500/20" :
+                                        user.plan === "Pro" ? "text-blue-400 bg-blue-500/10 border-blue-500/20" :
+                                            "text-slate-500 bg-slate-800/50 border-slate-700/50"
+                                )}>{user.plan}</span>
+                            </div>
+                            <div className="p-3 flex justify-between items-center">
+                                <span className="text-[11px] text-slate-400">Last Sign-in</span>
+                                <span className="text-[10px] text-slate-500">{user.lastSeen}</span>
+                            </div>
+                            <div className="p-3 flex justify-between items-center">
+                                <span className="text-[11px] text-slate-400">Status</span>
+                                <div className="flex items-center gap-1.5">
+                                    <div className={cn("w-1.5 h-1.5 rounded-full",
+                                        user.status === "active" ? "bg-emerald-500" :
+                                            user.status === "at-risk" ? "bg-rose-500" : "bg-slate-600"
+                                    )} />
+                                    <span className="text-[10px] text-slate-400 capitalize">{user.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer actions */}
+                <div className="p-4 border-t border-white/5 flex gap-3 bg-slate-900/20 shrink-0">
+                    <Link
+                        href={`/dashboard?viewUserId=${user.id}`}
+                        className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold text-center transition-all border border-white/5"
+                    >
+                        View Portfolio
+                    </Link>
+                    <button className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-600/20">
+                        Send Message
+                    </button>
+                </div>
+            </motion.div>
+        </div>
+    );
+}
+
 function StatCard({ label, value, trend, icon: Icon, color }: { label: string, value: string, trend: string, icon: any, color: 'blue' | 'emerald' | 'purple' | 'amber' }) {
     const colors = {
         blue: "text-blue-400 bg-blue-500/10 border-blue-500/20",
@@ -558,6 +819,77 @@ function ProgressItem({ label, value, color }: { label: string, value: number, c
 // --- SUB-VIEWS ---
 
 function AdminNotificationsView() {
+    const [scope, setScope] = useState("global");
+    const [urgency, setUrgency] = useState("info");
+    const [subject, setSubject] = useState("");
+    const [message, setMessage] = useState("");
+    const [isSending, setIsSending] = useState(false);
+    const [sent, setSent] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [history, setHistory] = useState<any[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(true);
+
+    const urgencyColors = {
+        info: { active: "bg-blue-600/20 text-blue-400 border-blue-500/40", dot: "bg-blue-500" },
+        warning: { active: "bg-amber-600/20 text-amber-400 border-amber-500/40", dot: "bg-amber-500" },
+        critical: { active: "bg-rose-600/20 text-rose-400 border-rose-500/40", dot: "bg-rose-500" },
+    };
+
+    const scopeLabels: Record<string, string> = {
+        global: "Global (All Registered Users)",
+        pro: "Pro Plan Subscribers",
+        inactive: "Inactive Users (> 30 days)",
+        new: "New Signups (Last 7 days)",
+    };
+
+    // Fetch broadcast history
+    const fetchHistory = async () => {
+        setHistoryLoading(true);
+        try {
+            const res = await fetch("/api/admin/broadcast");
+            if (res.ok) {
+                const data = await res.json();
+                setHistory(data);
+            }
+        } catch (e) {
+            console.error("Failed to fetch history:", e);
+        } finally {
+            setHistoryLoading(false);
+        }
+    };
+
+    useEffect(() => { fetchHistory(); }, []);
+
+    const handleTransmit = async () => {
+        if (!subject.trim() || !message.trim()) {
+            setError("Subject and message are required.");
+            return;
+        }
+        setIsSending(true);
+        setError(null);
+        try {
+            const res = await fetch("/api/admin/broadcast", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subject, message, urgency, scope }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Broadcast failed");
+
+            setSent(true);
+            setSubject("");
+            setMessage("");
+            await fetchHistory();
+            setTimeout(() => setSent(false), 3000);
+        } catch (e: any) {
+            setError(e.message);
+        } finally {
+            setIsSending(false);
+        }
+    };
+
+    const urgencyConfig = urgencyColors[urgency as keyof typeof urgencyColors];
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -568,86 +900,184 @@ function AdminNotificationsView() {
                     </h1>
                     <p className="text-slate-400">Broadcast system-wide alerts or targeted messages to your users.</p>
                 </div>
+                <div className="flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)] animate-pulse" />
+                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Dispatch System Online</span>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* --- Compose Form --- */}
                 <div className="lg:col-span-1 space-y-6">
                     <div className="glass-card p-6 rounded-3xl border border-slate-700/40 shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                             <Send size={100} className="text-white" />
                         </div>
                         <h3 className="text-lg font-bold text-white mb-6">Dispatch Broadcast</h3>
-                        <div className="space-y-4">
+                        <div className="space-y-5">
+                            {/* Receiver Scope */}
                             <div>
                                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2 px-1">Receiver Scope</label>
-                                <select className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-200">
-                                    <option>Global (All Registered Users)</option>
-                                    <option>Pro Plan Subscribers</option>
-                                    <option>Inactive Users (&gt; 30 days)</option>
-                                    <option>New Signups (Last 7 days)</option>
+                                <select
+                                    value={scope}
+                                    onChange={(e) => setScope(e.target.value)}
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-200"
+                                >
+                                    {Object.entries(scopeLabels).map(([k, v]) => (
+                                        <option key={k} value={k}>{v}</option>
+                                    ))}
                                 </select>
                             </div>
+
+                            {/* Urgency */}
                             <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2 px-1">Alert urgency</label>
+                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2 px-1">Alert Urgency</label>
                                 <div className="grid grid-cols-3 gap-2">
-                                    <button className="py-2.5 rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400 text-xs font-bold">Info</button>
-                                    <button className="py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-500 text-xs font-bold hover:bg-slate-800 transition-all">Warning</button>
-                                    <button className="py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-500 text-xs font-bold hover:bg-slate-800 transition-all">Critical</button>
+                                    {(["info", "warning", "critical"] as const).map((u) => (
+                                        <button
+                                            key={u}
+                                            onClick={() => setUrgency(u)}
+                                            className={cn(
+                                                "py-2.5 rounded-xl border text-xs font-bold capitalize transition-all",
+                                                urgency === u
+                                                    ? urgencyColors[u].active
+                                                    : "border-slate-700 bg-slate-900 text-slate-500 hover:bg-slate-800"
+                                            )}
+                                        >
+                                            {u}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
+
+                            {/* Subject */}
                             <div>
                                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2 px-1">Subject</label>
-                                <input type="text" placeholder="e.g. Platform Update: New AI Features" className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-200" />
+                                <input
+                                    type="text"
+                                    value={subject}
+                                    onChange={(e) => setSubject(e.target.value)}
+                                    placeholder="e.g. Platform Update: New AI Features"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-200 placeholder:text-slate-600"
+                                />
                             </div>
+
+                            {/* Message */}
                             <div>
                                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2 px-1">Message Payload</label>
-                                <textarea rows={4} placeholder="Type your broadcast message here..." className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-200 resize-none"></textarea>
+                                <textarea
+                                    rows={4}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    placeholder="Type your broadcast message here..."
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-indigo-500 transition-all text-slate-200 resize-none placeholder:text-slate-600"
+                                />
                             </div>
-                            <button className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg shadow-indigo-600/20 group">
-                                <Send size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                Initiate Transmission
+
+                            {/* Error */}
+                            {error && (
+                                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold flex items-center gap-2">
+                                    <AlertCircle size={14} /> {error}
+                                </div>
+                            )}
+
+                            {/* Transmit Button */}
+                            <button
+                                onClick={handleTransmit}
+                                disabled={isSending || sent}
+                                className={cn(
+                                    "w-full font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg group",
+                                    sent
+                                        ? "bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 shadow-emerald-600/10"
+                                        : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                )}
+                            >
+                                {isSending ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                                        Transmitting...
+                                    </>
+                                ) : sent ? (
+                                    <>
+                                        <Check size={18} /> Broadcast Sent!
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                                        Initiate Transmission
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
                 </div>
+
+                {/* --- Broadcast History --- */}
                 <div className="lg:col-span-2">
-                    <div className="glass-card rounded-3xl border border-slate-700/40 shadow-2xl overflow-hidden min-h-[500px]">
-                        <div className="p-6 border-b border-slate-800/60 bg-slate-900/40 flex items-center justify-between">
+                    <div className="glass-card rounded-3xl border border-slate-700/40 shadow-2xl overflow-hidden min-h-[500px] flex flex-col">
+                        <div className="p-6 border-b border-slate-800/60 bg-slate-900/40 flex items-center justify-between shrink-0">
                             <h3 className="text-lg font-bold text-white flex items-center gap-3">
                                 <History size={20} className="text-slate-500" />
                                 Broadcast History
                             </h3>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Showing last 12 units</span>
+                            <button
+                                onClick={fetchHistory}
+                                className="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1.5"
+                            >
+                                Refresh
+                            </button>
                         </div>
-                        <div className="divide-y divide-slate-800/40">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="p-6 hover:bg-white/5 transition-all group">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
-                                            <h4 className="font-bold text-slate-100 group-hover:text-white transition-colors">
-                                                {i === 1 ? "Strategic Update: Gemini 2.5 Integration" :
-                                                    i === 2 ? "Scheduled Maintenance Window" : "Welcome Bonus: 15 Free AI Searches"}
-                                            </h4>
-                                        </div>
-                                        <span className="text-[10px] font-mono text-slate-500">March {10 - i}, 2026</span>
-                                    </div>
-                                    <p className="text-sm text-slate-400 leading-relaxed mb-4 ml-5">
-                                        The Folio ecosystem has been upgraded with the latest generative nodes. Users now have access to high-fidelity property analysis...
-                                    </p>
-                                    <div className="flex items-center gap-6 ml-5">
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                                            <Users size={14} /> 1,248 Recipients
-                                        </div>
-                                        <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase tracking-tighter">
-                                            <CheckCircle2 size={14} /> 99.8% Delivered
-                                        </div>
-                                        <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="text-[10px] font-bold text-rose-500 uppercase hover:underline">Delete Record</button>
-                                        </div>
-                                    </div>
+
+                        <div className="flex-1 overflow-y-auto divide-y divide-slate-800/40">
+                            {historyLoading ? (
+                                <div className="flex flex-col items-center justify-center h-64 gap-3">
+                                    <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Loading transmission logs...</span>
                                 </div>
-                            ))}
+                            ) : history.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-64 gap-3 opacity-40">
+                                    <Bell size={36} className="text-slate-600" />
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No broadcasts dispatched yet</p>
+                                </div>
+                            ) : (
+                                history.map((item) => {
+                                    const urg = item.urgency as keyof typeof urgencyColors;
+                                    const dotClass = urgencyColors[urg]?.dot || "bg-slate-500";
+                                    return (
+                                        <div key={item.id} className="p-6 hover:bg-white/5 transition-all group">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className={cn("w-2 h-2 rounded-full shrink-0 shadow-[0_0_8px]", dotClass)} />
+                                                    <h4 className="font-bold text-slate-100 group-hover:text-white transition-colors truncate">{item.subject}</h4>
+                                                </div>
+                                                <span className="text-[10px] font-mono text-slate-500 shrink-0 ml-4">
+                                                    {new Date(item.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-slate-400 leading-relaxed mb-4 ml-5 line-clamp-2">{item.message}</p>
+                                            <div className="flex items-center gap-6 ml-5 flex-wrap">
+                                                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                                                    <Users size={14} /> {item.recipients?.toLocaleString()} Recipients
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 uppercase tracking-tighter">
+                                                    <CheckCircle2 size={14} /> Delivered
+                                                </div>
+                                                <span className={cn(
+                                                    "text-[9px] font-black uppercase px-2 py-0.5 rounded border tracking-tighter",
+                                                    urg === "critical" ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+                                                        urg === "warning" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                                                            "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                                                )}>
+                                                    {item.urgency}
+                                                </span>
+                                                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">
+                                                    {scopeLabels[item.scope] || item.scope}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            )}
                         </div>
                     </div>
                 </div>

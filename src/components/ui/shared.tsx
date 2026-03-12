@@ -42,18 +42,67 @@ export function AnimatedLogo({ size = 18 }: { size?: number }) {
 
 export function NotificationDropdown() {
     const [isOpen, setIsOpen] = useState(false);
-    const notifications = [
-        { id: 1, type: "success", title: "Milestone Reached! 🎉", message: "Portfolio Equity crossed $1M", time: "2h ago", read: false },
-        { id: 2, type: "alert", title: "Agent Prospector", message: "Found a new multi-family deal in Phoenix", time: "5h ago", read: true },
-        { id: 3, type: "info", title: "Rent Collected", message: "14/15 expected rents collected for this month", time: "1d ago", read: true },
-    ];
+    const [notifications, setNotifications] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasFetched, setHasFetched] = useState(false);
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+
+    const fetchNotifications = async () => {
+        if (isLoading) return;
+        setIsLoading(true);
+        try {
+            const res = await fetch("/api/notifications/inbox");
+            if (res.ok) {
+                const data = await res.json();
+                setNotifications(data);
+            }
+        } catch (e) {
+            console.error("Failed to fetch notifications:", e);
+        } finally {
+            setIsLoading(false);
+            setHasFetched(true);
+        }
+    };
+
+    const markAllRead = async () => {
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+        try {
+            await fetch("/api/notifications/inbox", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ids: "all" }),
+            });
+        } catch (e) {
+            console.error("Mark all read failed:", e);
+        }
+    };
+
+    const handleOpen = () => {
+        setIsOpen(!isOpen);
+        if (!isOpen && !hasFetched) fetchNotifications();
+    };
+
+    const urgencyIcon = (urgency: string) => {
+        if (urgency === "critical") return <AlertTriangle size={16} className="text-rose-400" />;
+        if (urgency === "warning") return <AlertTriangle size={16} className="text-amber-400" />;
+        return <TrendingUp size={16} className="text-blue-400" />;
+    };
+
+    const timeAgo = (dateStr: string) => {
+        const diff = Date.now() - new Date(dateStr).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return "Just now";
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        return `${Math.floor(hrs / 24)}d ago`;
+    };
 
     return (
         <div className="relative">
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={handleOpen}
                 className="relative p-2 text-slate-400 hover:text-white transition-colors hover:bg-slate-800 rounded-full"
             >
                 <Bell size={20} />
@@ -69,38 +118,65 @@ export function NotificationDropdown() {
                         <div className="p-4 border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md flex items-center justify-between">
                             <h3 className="font-semibold text-slate-100 flex items-center gap-2">
                                 <Bell size={16} className="text-blue-400" /> Notifications
+                                {unreadCount > 0 && (
+                                    <span className="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                                        {unreadCount}
+                                    </span>
+                                )}
                             </h3>
-                            <button className="text-xs text-blue-400 hover:text-blue-300 font-medium">Mark all as read</button>
+                            {unreadCount > 0 && (
+                                <button
+                                    onClick={markAllRead}
+                                    className="text-xs text-blue-400 hover:text-blue-300 font-medium"
+                                >
+                                    Mark all as read
+                                </button>
+                            )}
                         </div>
                         <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
-                            {notifications.length === 0 ? (
+                            {isLoading ? (
+                                <div className="p-8 flex flex-col items-center gap-3">
+                                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                                    <span className="text-xs text-slate-500">Loading notifications...</span>
+                                </div>
+                            ) : notifications.length === 0 ? (
                                 <div className="p-8 text-center text-slate-500 text-sm">
+                                    <Bell size={28} className="mx-auto mb-3 text-slate-700" />
                                     No new notifications
                                 </div>
                             ) : (
                                 <div className="flex flex-col">
                                     {notifications.map(notif => (
-                                        <div key={notif.id} className={`p-4 border-b border-slate-800/40 hover:bg-slate-800/40 transition-colors cursor-pointer flex gap-3 ${!notif.read ? 'bg-blue-500/5' : ''}`}>
+                                        <div
+                                            key={notif.id}
+                                            className={`p-4 border-b border-slate-800/40 hover:bg-slate-800/40 transition-colors cursor-pointer flex gap-3 ${!notif.is_read ? 'bg-blue-500/5' : ''}`}
+                                        >
                                             <div className="mt-0.5 shrink-0">
-                                                {notif.type === "success" && <CheckCircle2 size={16} className="text-emerald-400" />}
-                                                {notif.type === "alert" && <AlertTriangle size={16} className="text-amber-400" />}
-                                                {notif.type === "info" && <TrendingUp size={16} className="text-blue-400" />}
+                                                {urgencyIcon(notif.urgency)}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-start gap-2 mb-1">
-                                                    <p className={`text-sm font-semibold truncate ${!notif.read ? 'text-slate-200' : 'text-slate-300'}`}>{notif.title}</p>
-                                                    <span className="text-[10px] text-slate-500 shrink-0">{notif.time}</span>
+                                                    <p className={`text-sm font-semibold truncate ${!notif.is_read ? 'text-slate-200' : 'text-slate-300'}`}>
+                                                        {notif.title}
+                                                    </p>
+                                                    <span className="text-[10px] text-slate-500 shrink-0">{timeAgo(notif.created_at)}</span>
                                                 </div>
-                                                <p className="text-xs text-slate-400 leading-tight">{notif.message}</p>
+                                                <p className="text-xs text-slate-400 leading-tight line-clamp-2">{notif.message}</p>
                                             </div>
+                                            {!notif.is_read && (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                                            )}
                                         </div>
                                     ))}
                                 </div>
                             )}
                         </div>
                         <div className="p-3 border-t border-slate-800/80 bg-slate-900/95 text-center">
-                            <button className="text-xs text-slate-400 hover:text-slate-200 font-medium transition-colors">
-                                View all notifications
+                            <button
+                                onClick={fetchNotifications}
+                                className="text-xs text-slate-400 hover:text-slate-200 font-medium transition-colors"
+                            >
+                                Refresh notifications
                             </button>
                         </div>
                     </div>
