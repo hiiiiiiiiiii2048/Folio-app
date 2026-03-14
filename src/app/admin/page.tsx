@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser, SignInButton } from "@clerk/nextjs";
 import { AdminSupportDashboard } from "@/components/ui/AdminSupportDashboard";
 import { SettingsDropdown } from "@/components/ui/shared";
 import { cn } from "@/lib/utils";
@@ -48,9 +48,12 @@ export default function AdminPage() {
 
     const [activeTab, setActiveTab] = useState("Overview");
 
-    if (!isMounted) return null;
+    const { isLoaded, isSignedIn } = useUser();
+
+    if (!isMounted || !isLoaded) return null;
 
     if (!isAuthenticated) {
+        // ... (password form stays same)
         return (
             <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#06080F] text-slate-200">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-0"></div>
@@ -96,6 +99,33 @@ export default function AdminPage() {
                         <ArrowLeft size={10} /> Exit Secure Terminal
                     </Link>
                 </motion.div>
+            </div>
+        );
+    }
+
+    if (!isSignedIn) {
+        return (
+            <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#06080F] text-slate-200">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-0"></div>
+                <div className="flex flex-col items-center gap-6 z-10 max-w-sm text-center">
+                    <div className="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center shadow-lg border border-blue-500/30">
+                        <Shield size={32} className="text-blue-500 animate-pulse" />
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-white uppercase tracking-widest">Identity Required</h2>
+                        <p className="text-xs text-slate-500 uppercase font-black tracking-widest leading-relaxed">
+                            A secure Clerk session must be established to access the administrative command node.
+                        </p>
+                    </div>
+                    <SignInButton mode="modal">
+                        <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-lg shadow-blue-600/20 text-xs uppercase tracking-[0.2em] mt-4">
+                            Establish Clerk Identity
+                        </button>
+                    </SignInButton>
+                    <Link href="/" className="text-[10px] text-slate-600 hover:text-slate-400 font-bold uppercase tracking-widest transition-colors mt-4">
+                        Return to Public Node
+                    </Link>
+                </div>
             </div>
         );
     }

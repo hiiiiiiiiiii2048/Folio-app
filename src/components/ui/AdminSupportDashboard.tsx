@@ -873,8 +873,14 @@ function AdminNotificationsView() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ subject, message, urgency, scope }),
             });
+
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Broadcast failed");
+
+            if (res.status === 401) {
+                throw new Error("Unauthorized. Please ensure you are signed into your Follio account.");
+            }
+
+            if (!res.ok) throw new Error(data.error || "Broadcast mission failed at terminal.");
 
             setSent(true);
             setSubject("");
@@ -901,8 +907,16 @@ function AdminNotificationsView() {
                     <p className="text-slate-400">Broadcast system-wide alerts or targeted messages to your users.</p>
                 </div>
                 <div className="flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-xl px-4 py-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)] animate-pulse" />
-                    <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Dispatch System Online</span>
+                    <div className={cn(
+                        "w-1.5 h-1.5 rounded-full animate-pulse",
+                        error ? "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
+                    )} />
+                    <span className={cn(
+                        "text-[10px] font-black uppercase tracking-widest",
+                        error ? "text-rose-400" : "text-emerald-400"
+                    )}>
+                        {error ? "Transmission Interference" : "Dispatch System Online"}
+                    </span>
                 </div>
             </div>
 
