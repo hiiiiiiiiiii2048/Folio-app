@@ -517,27 +517,308 @@ export function AdminSupportDashboard({ activeTab = "Overview" }: { activeTab?: 
                     </motion.div>
                 )}
 
-                {(activeTab === "System Infrastructure" || activeTab === "API Logs") && (
-                    <motion.div
-                        key="placeholder"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="h-[60vh] flex flex-col items-center justify-center text-center opacity-40"
-                    >
-                        <Server size={42} className="text-slate-700 mb-6" />
-                        <h2 className="text-xl font-black text-slate-500 uppercase tracking-[0.4em]">Node Encrypted</h2>
-                        <p className="text-[10px] text-slate-600 font-black uppercase tracking-[0.2em] mt-3 px-10 max-w-sm leading-relaxed">
-                            Access restricted to hardware administrator Level 4. Contact system architecture for biometric clearance.
-                        </p>
-                    </motion.div>
-                )}
+                {activeTab === "System Infrastructure" && <AdminInfrastructureView />}
+                {activeTab === "API Logs" && <AdminApiLogsView />}
             </AnimatePresence>
         </div>
     );
 }
 
 
+function AdminInfrastructureView() {
+    const [dbStatus, setDbStatus] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch("/api/admin/db-check")
+            .then(res => res.json())
+            .then(data => {
+                setDbStatus(data);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, []);
+
+    const nodes = [
+        { name: "Edge Proxy US-East", status: "Operational", load: "12%", latency: "14ms" },
+        { name: "Compute Node 01", status: "Operational", load: "45%", latency: "2ms" },
+        { name: "Compute Node 02", status: "Operational", load: "38%", latency: "3ms" },
+        { name: "Storage Cluster", status: "Degraded", load: "88%", latency: "145ms" },
+    ];
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8"
+        >
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-outfit font-bold text-white mb-2 flex items-center gap-3">
+                        <Activity className="text-blue-400" />
+                        System Infrastructure
+                    </h1>
+                    <p className="text-slate-400 text-sm">Real-time monitoring of all global command nodes and clusters.</p>
+                </div>
+                <div className="flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-2xl px-4 py-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Global Mesh Active</span>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* DB Status Card */}
+                <div className="lg:col-span-2 glass-card rounded-3xl border border-slate-700/40 p-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4">
+                        <Database className="text-slate-800" size={60} />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-6">Primary Database Hub</h3>
+
+                    {loading ? (
+                        <div className="h-32 flex items-center justify-center">
+                            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Status</p>
+                                <p className={cn("text-lg font-bold", dbStatus?.ok ? "text-emerald-400" : "text-rose-400")}>
+                                    {dbStatus?.ok ? "CONNECTED" : "OFFLINE"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Assets Row Count</p>
+                                <p className="text-lg font-bold text-white font-mono">{dbStatus?.totalProperties || 0}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Project Ref</p>
+                                <p className="text-lg font-bold text-blue-400 font-mono">{dbStatus?.dbProjectRef || "N/A"}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-600 uppercase mb-1">Schema Sync</p>
+                                <p className={cn("text-lg font-bold", dbStatus?.match ? "text-emerald-400" : "text-amber-400")}>
+                                    {dbStatus?.match ? "VALID" : "MISMATCH"}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mt-8 pt-6 border-t border-slate-800/50 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black text-slate-600 uppercase">IOPS</span>
+                                <span className="text-xs font-bold text-slate-300">1,240/s</span>
+                            </div>
+                            <div className="h-8 w-px bg-slate-800"></div>
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black text-slate-600 uppercase">CPU Usage</span>
+                                <span className="text-xs font-bold text-slate-300">12.4%</span>
+                            </div>
+                        </div>
+                        <button
+                            onClick={async () => {
+                                const res = await fetch("/api/admin/reload-schema", { method: "POST" });
+                                const data = await res.json();
+                                alert(data.success ? "Schema reload requested" : "Error: " + data.error);
+                            }}
+                            className="text-[10px] font-black text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors flex items-center gap-2"
+                        >
+                            <History size={12} /> Force Schema Reload
+                        </button>
+                    </div>
+                </div>
+
+                {/* Resource Metrics */}
+                <div className="glass-card rounded-3xl border border-slate-700/40 p-6 flex flex-col justify-between">
+                    <h3 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Compute Resources</h3>
+                    <div className="space-y-6">
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">CPU Clusters</span>
+                                <span className="text-[10px] font-bold text-white">42%</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: "42%" }}
+                                    className="h-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">Memory Allocation</span>
+                                <span className="text-[10px] font-bold text-white">68%</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: "68%" }}
+                                    className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between mb-2">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase">Inbound Traffic</span>
+                                <span className="text-[10px] font-bold text-white">14.2 GB/s</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: "25%" }}
+                                    className="h-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-6 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                        <p className="text-[9px] text-blue-400 font-bold uppercase leading-relaxed">
+                            AI Acceleration Node 01 is currently processing high-volume vector embeddings for Portfolio Health analysis.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Node Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {nodes.map((node, i) => (
+                    <div key={i} className="p-5 rounded-3xl bg-slate-900/40 border border-slate-800/60 hover:border-slate-700/60 transition-all group">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="p-2 rounded-lg bg-slate-950/60 text-slate-500 group-hover:text-blue-400 transition-colors">
+                                <Globe size={18} />
+                            </div>
+                            <div className={cn(
+                                "px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest",
+                                node.status === "Degraded" ? "bg-rose-500/10 text-rose-500" : "bg-emerald-500/10 text-emerald-500"
+                            )}>
+                                {node.status}
+                            </div>
+                        </div>
+                        <h4 className="text-xs font-bold text-white mb-4 uppercase tracking-wider">{node.name}</h4>
+                        <div className="flex items-center justify-between text-[10px] font-bold uppercase">
+                            <span className="text-slate-600">Avg Latency</span>
+                            <span className={cn(node.status === "Degraded" ? "text-rose-400" : "text-slate-300")}>{node.latency}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </motion.div>
+    );
+}
+
+function AdminApiLogsView() {
+    const logs = [
+        { id: "LOG-1240", method: "POST", endpoint: "/api/admin/broadcast", status: 200, latency: "245ms", time: "Just now", user: "Admin" },
+        { id: "LOG-1239", method: "GET", endpoint: "/api/user/properties", status: 200, latency: "12ms", time: "2 mins ago", user: "User_842" },
+        { id: "LOG-1238", method: "POST", endpoint: "/api/auth/sign-in", status: 401, latency: "84ms", time: "5 mins ago", user: "Guest" },
+        { id: "LOG-1237", method: "GET", endpoint: "/api/admin/db-check", status: 200, latency: "42ms", time: "12 mins ago", user: "Admin" },
+        { id: "LOG-1236", method: "PATCH", endpoint: "/api/properties/prop_8k2", status: 200, latency: "156ms", time: "14 mins ago", user: "User_12" },
+        { id: "LOG-1235", method: "GET", endpoint: "/api/notifications/inbox", status: 500, latency: "1.2s", time: "20 mins ago", user: "User_99" },
+    ];
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-6"
+        >
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-outfit font-bold text-white mb-2 flex items-center gap-3">
+                        <Server className="text-blue-400" />
+                        API Traffic Logs
+                    </h1>
+                    <p className="text-slate-400 text-sm">Real-time inspection of inbound network requests and system responses.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                        <input
+                            type="text"
+                            placeholder="SEARCH ENDPOINT..."
+                            className="bg-slate-900/50 border border-slate-800 rounded-xl py-2 pl-9 pr-4 text-[10px] font-bold text-white focus:outline-none focus:border-blue-500/50 w-64 uppercase tracking-widest font-mono"
+                        />
+                    </div>
+                    <button className="p-2 rounded-xl bg-slate-900/50 border border-slate-800 text-slate-500 hover:text-white transition-all">
+                        <Filter size={18} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="glass-card rounded-3xl border border-slate-700/40 overflow-hidden shadow-2xl">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="border-b border-slate-800/50 bg-slate-950/20">
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Request ID</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Method</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Endpoint</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Latency</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Initiator</th>
+                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/40">
+                        {logs.map((log) => (
+                            <tr key={log.id} className="hover:bg-white/5 transition-colors group cursor-pointer">
+                                <td className="px-6 py-5 font-mono text-[10px] text-blue-400 font-bold">{log.id}</td>
+                                <td className="px-6 py-5">
+                                    <span className={cn(
+                                        "px-2 py-0.5 rounded text-[9px] font-black uppercase",
+                                        log.method === "POST" ? "text-emerald-400 bg-emerald-500/10" :
+                                            log.method === "GET" ? "text-blue-400 bg-blue-500/10" :
+                                                log.method === "PATCH" ? "text-amber-400 bg-amber-500/10" : "text-slate-400 bg-slate-800"
+                                    )}>
+                                        {log.method}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-5">
+                                    <span className="text-[11px] text-slate-200 font-mono tracking-tight">{log.endpoint}</span>
+                                </td>
+                                <td className="px-6 py-5">
+                                    <div className="flex items-center gap-2">
+                                        <div className={cn(
+                                            "w-1.5 h-1.5 rounded-full",
+                                            log.status >= 500 ? "bg-rose-500" :
+                                                log.status >= 400 ? "bg-amber-500" : "bg-emerald-500"
+                                        )}></div>
+                                        <span className={cn(
+                                            "text-[10px] font-bold uppercase",
+                                            log.status >= 500 ? "text-rose-400" :
+                                                log.status >= 400 ? "text-amber-400" : "text-emerald-400"
+                                        )}>{log.status}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-5 text-[10px] font-mono text-slate-400">
+                                    {log.latency}
+                                </td>
+                                <td className="px-6 py-5">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-slate-300 uppercase">{log.user}</span>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-5 text-[10px] text-slate-500 font-medium">
+                                    {log.time}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                <div className="p-4 bg-slate-950/40 border-t border-slate-800/50 flex justify-between items-center">
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Showing 6 of 14,204 transactions</span>
+                    <div className="flex gap-2">
+                        <button className="px-3 py-1 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase disabled:opacity-30" disabled>Prev</button>
+                        <button className="px-3 py-1 rounded bg-slate-800 text-[10px] font-bold text-slate-400 uppercase">Next</button>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+}
+
 function UserDetailDrawer({ user, onClose }: { user: any; onClose: () => void }) {
+
     const healthColor =
         user.health > 80 ? "text-emerald-400" :
             user.health > 60 ? "text-amber-400" : "text-rose-400";
