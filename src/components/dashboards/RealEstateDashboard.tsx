@@ -7,7 +7,7 @@ import { Property } from "@/lib/data";
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 
-const MapWidget = dynamic(() => import("@/components/ui/MapWidget"), {
+const MapWidget = dynamic<any>(() => import("@/components/ui/MapWidget"), {
     ssr: false,
     loading: () => (
         <div className="w-full h-full bg-slate-900/50 flex flex-col gap-4 items-center justify-center rounded-2xl border border-slate-800 animate-pulse">
@@ -30,7 +30,9 @@ const LiveFeedItem = ({ text, time, icon: Icon, color }: any) => (
 );
 
 const formatTimeAgo = (date: Date) => {
+    if (!date || isNaN(date.getTime())) return "Recently";
     const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 0) return "Just now";
     if (seconds < 60) return `Just now`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
@@ -51,12 +53,16 @@ function LiveActivityFeed({ properties }: { properties: Property[] }) {
     // Derive real events from user's actual properties
     const propertyEvents: { text: string; time: Date; icon: any; color: string }[] = [];
 
-    const sorted = [...properties]
-        .filter(p => !p.isDemo)
-        .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    const sorted = [...(properties || [])]
+        .filter(p => p && !p.isDemo)
+        .sort((a: any, b: any) => {
+            const dateA = new Date(a.createdAt || a.created_at || 0).getTime();
+            const dateB = new Date(b.createdAt || b.created_at || 0).getTime();
+            return dateB - dateA;
+        });
 
     sorted.slice(0, 2).forEach(p => {
-        const createdAt = (p as any).createdAt ? new Date((p as any).createdAt) : new Date(Date.now() - Math.random() * 86400000 * 7);
+        const createdAt = (p as any).createdAt || (p as any).created_at ? new Date((p as any).createdAt || (p as any).created_at) : new Date(Date.now() - Math.random() * 86400000 * 7);
         propertyEvents.push({
             text: `"${p.name}" added to your portfolio`,
             time: createdAt,
@@ -66,8 +72,8 @@ function LiveActivityFeed({ properties }: { properties: Property[] }) {
     });
 
     // Value changes — properties worth more than purchase price
-    properties.filter(p => !p.isDemo && (p.currentValue || 0) > (p.purchasePrice || 0)).slice(0, 1).forEach(p => {
-        const gain = (((p.currentValue || 0) - (p.purchasePrice || 0)) / (p.purchasePrice || 1) * 100).toFixed(1);
+    properties.filter(p => !p.isDemo && (p.financials?.currentValue || 0) > (p.financials?.purchasePrice || 0)).slice(0, 1).forEach(p => {
+        const gain = (((p.financials.currentValue || 0) - (p.financials.purchasePrice || 0)) / (p.financials.purchasePrice || 1) * 100).toFixed(1);
         propertyEvents.push({
             text: `${p.name} is up ${gain}% vs. purchase price`,
             time: new Date(Date.now() - 3600000 * 5),
@@ -77,9 +83,9 @@ function LiveActivityFeed({ properties }: { properties: Property[] }) {
     });
 
     // Cash flow events
-    const cashflowProps = properties.filter(p => !p.isDemo && (p.monthlyRent || 0) > 0);
+    const cashflowProps = properties.filter(p => !p.isDemo && (p.financials?.monthlyRent || 0) > 0);
     if (cashflowProps.length > 0) {
-        const totalRent = cashflowProps.reduce((s, p) => s + (p.monthlyRent || 0), 0);
+        const totalRent = cashflowProps.reduce((s, p) => s + (p.financials?.monthlyRent || 0), 0);
         propertyEvents.push({
             text: `${formatCompactCurrency(totalRent, "USD", "en")}/mo rent across ${cashflowProps.length} propert${cashflowProps.length > 1 ? "ies" : "y"}`,
             time: new Date(Date.now() - 86400000),
