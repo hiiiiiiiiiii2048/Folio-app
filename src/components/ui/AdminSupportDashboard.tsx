@@ -1649,7 +1649,7 @@ function AdminMarketingFlowsView() {
                                 <div key={i} className="h-24 bg-slate-900/40 animate-pulse rounded-3xl border border-slate-800/60" />
                             ))}
                         </div>
-                    ) : (
+                    ) : Array.isArray(flows) ? (
                         flows.map((flow) => (
                             <button
                                 key={flow.id}
@@ -1681,6 +1681,10 @@ function AdminMarketingFlowsView() {
                                 </div>
                             </button>
                         ))
+                    ) : (
+                        <div className="p-6 rounded-3xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase tracking-widest text-center">
+                            Failed to load sequences. Ensure database migrations are applied.
+                        </div>
                     )}
                 </div>
 
@@ -1715,7 +1719,7 @@ function AdminMarketingFlowsView() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    {selectedFlow.steps?.sort((a: any, b: any) => a.day_offset - b.day_offset).map((step: any, idx: number) => (
+                                    {Array.isArray(selectedFlow.steps) && [...selectedFlow.steps].sort((a: any, b: any) => a.day_offset - b.day_offset).map((step: any, idx: number) => (
                                         <div key={step.id} className="group relative flex gap-6">
                                             {/* Timeline Visual */}
                                             <div className="flex flex-col items-center">
