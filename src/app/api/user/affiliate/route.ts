@@ -17,14 +17,32 @@ export async function GET() {
             .from("affiliates")
             .select(`
                 *,
-                conversions:affiliate_conversions(id, amount_usd, commission_earned, downline_earned, status, created_at),
+                conversions:affiliate_conversions(id, amount_usd, commission_earned, downline_earned, status, created_at, referred_user_id),
                 payouts:affiliate_payouts(id, amount, status, paid_at)
             `)
             .eq("user_id", userId)
             .single();
 
-        if (error && error.code !== "PGRST116") { // PGRST116 is "no rows found"
+        if (error && error.code !== "PGRST116") {
             throw error;
+        }
+
+        if (affiliate) {
+            // Fetch team members (people referred by this user who are also affiliates)
+            const referredUserIds = affiliate.conversions
+                ?.map((c: any) => c.referred_user_id)
+                .filter(Boolean);
+
+            if (referredUserIds && referredUserIds.length > 0) {
+                const { data: team } = await supabase
+                    .from("affiliates")
+                    .select("id, name, email, total_conversions, created_at")
+                    .in("user_id", referredUserIds);
+
+                (affiliate as any).team = team || [];
+            } else {
+                (affiliate as any).team = [];
+            }
         }
 
         return NextResponse.json(affiliate || null);

@@ -181,7 +181,7 @@ export function AdminAffiliateView() {
                         <Gift className="text-purple-400" />
                         Affiliate Program
                     </h1>
-                    <p className="text-slate-400 text-sm">Multi-tier Team Builder · 30% direct commission · 10% on partner referral earnings.</p>
+                    <p className="text-slate-400 text-sm">Multi-tier Team Builder · 30% direct commission · 10% on partner referral earnings · <span className="text-emerald-400 font-medium">Anytime Payouts</span></p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button
